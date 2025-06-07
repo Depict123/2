@@ -171,24 +171,49 @@
         }
 
         .music-card {
-            background: rgba(255, 255, 255, 0.08);
+            /* 移除原有背景色，由JS设置背景图片 */
             padding: 22px;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
             transition: all 0.3s;
             backdrop-filter: blur(5px);
             border: 1px solid rgba(255, 255, 255, 0.1);
+            position: relative;
+            overflow: hidden;
+            background-size: cover;
+            background-position: center;
+            /* 深色半透明遮罩确保文字可读 */
+            background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6));
+        }
+
+        /* 背景图片层 */
+        .card-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: -1;
+            opacity: 0.8;
+            transition: opacity 0.3s;
         }
 
         .music-card:hover {
             transform: translateY(-8px);
             box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-            background: rgba(255, 255, 255, 0.12);
             border: 1px solid rgba(77, 184, 255, 0.3);
+        }
+
+        .music-card:hover .card-bg {
+            opacity: 0.9;
         }
 
         .music-info {
             margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
         }
 
         .music-info h3 {
@@ -210,6 +235,8 @@
             display: flex;
             align-items: center;
             margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
         }
 
         .play-btn {
@@ -255,6 +282,8 @@
             margin-bottom: 12px;
             cursor: pointer;
             overflow: hidden;
+            position: relative;
+            z-index: 1;
         }
 
         .progress-bar {
@@ -270,6 +299,8 @@
             display: flex;
             align-items: center;
             margin-top: 12px;
+            position: relative;
+            z-index: 1;
         }
 
         .volume-icon {
@@ -541,21 +572,21 @@
             }
         });
 
-        // 音乐数据 - 修改为相对路径
+        // 音乐数据 - 添加封面图片路径
         const musicLibrary = [
-            { title: '你被写在我的歌里', artist: '鹅鹅鹅', file: 'audio/你被写在我的歌里.mp3' },
-            { title: '枫', artist: '鹅鹅鹅', file: 'audio/枫.mp3' },
-            { title: '怎么了', artist: '鹅鹅鹅', file: 'audio/怎么了.mp3' },
-            { title: '找到你是我最伟大的成功', artist: '鹅鹅鹅', file: 'audio/找到你是我最伟大的成功.mp3' },
-            { title: '微微', artist: '鹅鹅鹅', file: 'audio/微微.mp3' },
-            { title: '他不懂', artist: '鹅鹅鹅', file: 'audio/他不懂.mp3' },
-            { title: '说好的幸福呢', artist: '鹅鹅鹅', file: 'audio/说好的幸福呢.mp3' },
-            { title: '如果说', artist: '鹅鹅鹅', file: 'audio/如果说.mp3' },
-            { title: '目及皆是你', artist: '鹅鹅鹅', file: 'audio/目及皆是你.mp3' },
-            { title: '红尘客栈', artist: '鹅鹅鹅', file: 'audio/红尘客栈.mp3' },
-            { title: 'Pinky murder', artist: '鹅鹅鹅', file: 'audio/Pinky murder.mp3' },
-            { title: 'A Sad Me In Your Eyes', artist: '鹅鹅鹅', file: 'audio/A Sad Me In Your Eyes.mp3' },
-            { title: '鸽子', artist: '鹅鹅鹅', file: 'audio/鸽子.mp3' }
+            { title: '你被写在我的歌里', artist: '鹅鹅鹅', file: 'audio/你被写在我的歌里.mp3', cover: 'images/1.jpg' },
+            { title: '枫', artist: '鹅鹅鹅', file: 'audio/枫.mp3', cover: 'images/2.jpg' },
+            { title: '怎么了', artist: '鹅鹅鹅', file: 'audio/怎么了.mp3', cover: 'images/3.jpg' },
+            { title: '找到你是我最伟大的成功', artist: '鹅鹅鹅', file: 'audio/找到你是我最伟大的成功.mp3', cover: 'images/4.jpg' },
+            { title: '微微', artist: '鹅鹅鹅', file: 'audio/微微.mp3', cover: 'images/5.jpg' },
+            { title: '他不懂', artist: '鹅鹅鹅', file: 'audio/他不懂.mp3', cover: 'images/6.jpg' },
+            { title: '说好的幸福呢', artist: '鹅鹅鹅', file: 'audio/说好的幸福呢.mp3', cover: 'images/7.jpg' },
+            { title: '如果说', artist: '鹅鹅鹅', file: 'audio/如果说.mp3', cover: 'images/8.jpg' },
+            { title: '目及皆是你', artist: '鹅鹅鹅', file: 'audio/目及皆是你.mp3', cover: 'images/9.jpg' },
+            { title: '红尘客栈', artist: '鹅鹅鹅', file: 'audio/红尘客栈.mp3', cover: 'images/10.jpg' },
+            { title: 'Pinky murder', artist: '鹅鹅鹅', file: 'audio/Pinky murder.mp3', cover: 'images/11.jpg' },
+            { title: 'A Sad Me In Your Eyes', artist: '鹅鹅鹅', file: 'audio/A Sad Me In Your Eyes.mp3', cover: 'images/12.jpg' },
+            { title: '鸽子', artist: '鹅鹅鹅', file: 'audio/鸽子.mp3', cover: 'images/13.jpg' }
         ];
 
         // 当前播放状态
@@ -577,7 +608,14 @@
             musicLibrary.forEach((music, index) => {
                 const card = document.createElement('div');
                 card.className = 'music-card';
-                card.innerHTML = `
+                
+                // 添加背景图片层
+                const bgDiv = document.createElement('div');
+                bgDiv.className = 'card-bg';
+                bgDiv.style.backgroundImage = `url('${music.cover}')`;
+                card.appendChild(bgDiv);
+                
+                card.innerHTML += `
                     <div class="music-info">
                         <h3>${music.title}</h3>
                         <p>${music.artist}</p>
@@ -632,12 +670,27 @@
                     togglePlay(audio, index, card);
                 });
                 
+                // 解决进度条拖动问题：添加拖动支持
+                let isDragging = false;
+                
+                progressContainer.addEventListener('mousedown', function(e) {
+                    isDragging = true;
+                    updateProgress(e, audio, progressContainer, progressBar);
+                });
+                
+                document.addEventListener('mousemove', function(e) {
+                    if (isDragging) {
+                        updateProgress(e, audio, progressContainer, progressBar);
+                    }
+                });
+                
+                document.addEventListener('mouseup', function() {
+                    isDragging = false;
+                });
+                
                 // 点击进度条
                 progressContainer.addEventListener('click', function(e) {
-                    const clickPosition = e.offsetX;
-                    const progressWidth = this.clientWidth;
-                    const duration = audio.duration || 1;
-                    audio.currentTime = (clickPosition / progressWidth) * duration;
+                    updateProgress(e, audio, progressContainer, progressBar);
                 });
                 
                 // 音量控制
@@ -647,7 +700,7 @@
                 
                 // 更新进度条和时间
                 audio.addEventListener('timeupdate', function() {
-                    if (!isNaN(audio.duration)) {
+                    if (!isDragging && !isNaN(audio.duration)) {
                         const progressPercent = (audio.currentTime / audio.duration) * 100;
                         progressBar.style.width = `${progressPercent}%`;
                         
@@ -680,6 +733,24 @@
                     }, 500);
                 }
             }, 10000); // 10秒超时
+        }
+
+        // 更新进度条
+        function updateProgress(e, audio, container, progressBar) {
+            const clickX = e.clientX - container.getBoundingClientRect().left;
+            const containerWidth = container.clientWidth;
+            const percentage = Math.min(Math.max(clickX / containerWidth, 0), 1);
+            audio.currentTime = percentage * audio.duration;
+            progressBar.style.width = `${percentage * 100}%`;
+            
+            // 更新时间显示
+            const currentMinutes = Math.floor(audio.currentTime / 60);
+            const currentSeconds = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
+            const durationMinutes = Math.floor(audio.duration / 60);
+            const durationSeconds = Math.floor(audio.duration % 60).toString().padStart(2, '0');
+            
+            container.parentElement.querySelector('.time-info').textContent = 
+                `${currentMinutes}:${currentSeconds} / ${durationMinutes}:${durationSeconds}`;
         }
 
         // 播放/暂停切换
