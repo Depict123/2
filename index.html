@@ -3,9 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>音乐播放平台</title>
+    <title>欢迎收听你的月亮我的心</title>
     <style>
-        /* 基础样式 */
         * { 
             margin: 0;
             padding: 0;
@@ -21,7 +20,6 @@
             color: #fff;
         }
 
-        /* 加载提示 */
         #loading-overlay {
             position: fixed;
             top: 0;
@@ -57,7 +55,6 @@
             text-align: center;
         }
 
-        /* 登录界面样式 */
         .login-container {
             width: 90%;
             max-width: 450px;
@@ -68,6 +65,7 @@
             backdrop-filter: blur(10px);
             box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
             border: 1px solid rgba(255, 255, 255, 0.18);
+            transition: all 0.4s;
         }
 
         .login-form h2 {
@@ -80,6 +78,7 @@
 
         .form-group {
             margin-bottom: 22px;
+            position: relative;
         }
 
         input[type="text"],
@@ -101,8 +100,38 @@
             outline: none;
         }
 
+        .error-message {
+            color: #ff6b6b;
+            font-size: 14px;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .lockout-message {
+            color: #ffcc00;
+            font-size: 16px;
+            margin-top: 10px;
+            text-align: center;
+            padding: 10px;
+            background: rgba(255, 0, 0, 0.1);
+            border-radius: 8px;
+            display: none;
+            font-weight: bold;
+        }
+
+        .security-info {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+            display: flex;
+            align-items: center;
+        }
+        
+        .security-info .icon {
+            margin-right: 5px;
+        }
+
         button {
-            width: 100%;
             padding: 16px;
             background: linear-gradient(45deg, #4db8ff, #1a75ff);
             color: white;
@@ -114,6 +143,7 @@
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(26, 117, 255, 0.4);
             margin-top: 10px;
+            width: 100%; /* 登录按钮扩大到与登录框一样大小 */
         }
         
         button:hover {
@@ -126,7 +156,6 @@
             box-shadow: 0 2px 10px rgba(26, 117, 255, 0.4);
         }
 
-        /* NFC提示 */
         .nfc-tip {
             text-align: center;
             margin-top: 25px;
@@ -139,28 +168,79 @@
             border: 1px solid rgba(77, 184, 255, 0.4);
         }
 
-        /* 音乐库界面 */
+        .main-menu {
+            display: none;
+            max-width: 600px;
+            margin: 50px auto;
+            padding: 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.18);
+        }
+
+        .main-menu h1 {
+            font-size: 36px;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .menu-options {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .menu-btn {
+            width: 100%;
+            padding: 18px;
+            font-size: 20px;
+            border-radius: 10px;
+            background: linear-gradient(45deg, #4db8ff, #1a75ff);
+            color: white;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(26, 117, 255, 0.4);
+        }
+
+        .menu-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 20px rgba(26, 117, 255, 0.6);
+        }
+
         .music-library {
-            display: none; /* 默认隐藏 */
+            display: none;
             max-width: 1300px;
             margin: 30px auto;
             padding: 20px;
         }
         
-        .header {
-            text-align: center;
-            margin-bottom: 30px;
+        .library-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
         }
         
-        .header h1 {
-            font-size: 36px;
-            margin-bottom: 10px;
+        .library-header h1 {
+            font-size: 32px;
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         
-        .header p {
-            font-size: 18px;
-            opacity: 0.8;
+        .playing-text{
+            writing-mode: horizontal-tb;
+            white-space: nowrap;
+        }
+
+        .back-btn {
+            margin-left: 500px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
         }
 
         .music-grid {
@@ -171,7 +251,6 @@
         }
 
         .music-card {
-            /* 移除原有背景色，由JS设置背景图片 */
             padding: 22px;
             border-radius: 12px;
             box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
@@ -180,13 +259,16 @@
             border: 1px solid rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
-            background-size: cover;
-            background-position: center;
-            /* 深色半透明遮罩确保文字可读 */
             background: linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6));
+            cursor: pointer;
         }
 
-        /* 背景图片层 */
+        .music-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(77, 184, 255, 0.3);
+        }
+
         .card-bg {
             position: absolute;
             top: 0;
@@ -198,16 +280,6 @@
             z-index: -1;
             opacity: 0.8;
             transition: opacity 0.3s;
-        }
-
-        .music-card:hover {
-            transform: translateY(-8px);
-            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
-            border: 1px solid rgba(77, 184, 255, 0.3);
-        }
-
-        .music-card:hover .card-bg {
-            opacity: 0.9;
         }
 
         .music-info {
@@ -230,60 +302,126 @@
             font-size: 15px;
         }
 
-        /* 播放控制 */
-        .controls {
-            display: flex;
-            align-items: center;
-            margin-bottom: 12px;
+        .song-page {
+            display: none;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 25px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.18);
             position: relative;
-            z-index: 1;
+            overflow: hidden;
         }
 
-        .play-btn {
-            width: 42px;
-            height: 42px;
-            background: linear-gradient(45deg, #4db8ff, #1a75ff);
+        .song-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 25px;
+        }
+
+        .song-cover {
+            width: 100%;
+            height: 300px;
+            border-radius: 15px;
+            background-size: cover;
+            background-position: center;
+            margin-bottom: 25px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        .song-info {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .song-title {
+            font-size: 32px;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .song-artist {
+            font-size: 22px;
+            color: #a0d0ff;
+            opacity: 0.9;
+        }
+
+        .song-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .play-btn-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .nav-btn {
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
             border: none;
             color: white;
-            font-size: 16px;
+            font-size: 20px;
             cursor: pointer;
-            margin-right: 12px;
+            margin: 0 15px;
             display: flex;
             align-items: center;
             justify-content: center;
             transition: all 0.3s;
-            box-shadow: 0 4px 8px rgba(26, 117, 255, 0.3);
         }
-        
+
+        .nav-btn:hover {
+            background: rgba(77, 184, 255, 0.5);
+            transform: scale(1.1);
+        }
+
+        .play-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #4db8ff, #1a75ff);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s;
+            box-shadow: 0 4px 15px rgba(26, 117, 255, 0.4);
+        }
+
         .play-btn:hover {
             transform: scale(1.1);
-            box-shadow: 0 6px 12px rgba(26, 117, 255, 0.4);
-        }
-        
-        .play-btn:active {
-            transform: scale(0.95);
+            box-shadow: 0 6px 20px rgba(26, 117, 255, 0.6);
         }
 
         .time-info {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.8);
-            margin: 0 10px;
-            flex-grow: 1;
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.9);
+            margin: 10px 0;
             font-family: monospace;
         }
 
-        /* 进度条 */
         .progress-container {
             width: 100%;
-            height: 6px;
+            height: 8px;
             background: rgba(255, 255, 255, 0.2);
             border-radius: 5px;
-            margin-bottom: 12px;
+            margin: 15px 0;
             cursor: pointer;
             overflow: hidden;
             position: relative;
-            z-index: 1;
         }
 
         .progress-bar {
@@ -294,25 +432,24 @@
             transition: width 0.1s linear;
         }
 
-        /* 音量控制 */
         .volume-control {
             display: flex;
             align-items: center;
-            margin-top: 12px;
-            position: relative;
-            z-index: 1;
+            justify-content: center;
+            margin-top: 15px;
+            width: 100%;
         }
 
         .volume-icon {
-            margin-right: 12px;
+            margin: 0 15px;
             color: #a0d0ff;
-            font-size: 16px;
+            font-size: 20px;
         }
 
         .volume-slider {
-            width: 100%;
+            width: 60%;
             -webkit-appearance: none;
-            height: 6px;
+            height: 8px;
             border-radius: 5px;
             background: rgba(255, 255, 255, 0.2);
             outline: none;
@@ -320,40 +457,14 @@
         
         .volume-slider::-webkit-slider-thumb {
             -webkit-appearance: none;
-            width: 18px;
-            height: 18px;
+            width: 20px;
+            height: 20px;
             border-radius: 50%;
             background: #4db8ff;
             cursor: pointer;
             box-shadow: 0 0 8px rgba(77, 184, 255, 0.8);
         }
-        
-        /* 移动端优化 */
-        @media (max-width: 768px) {
-            .login-container {
-                margin: 80px auto;
-                padding: 30px 20px;
-            }
-            
-            .music-grid {
-                grid-template-columns: 1fr;
-                gap: 18px;
-            }
-            
-            .music-card {
-                padding: 18px;
-            }
-            
-            button {
-                padding: 14px;
-            }
-            
-            .header h1 {
-                font-size: 28px;
-            }
-        }
-        
-        /* iOS 提示弹窗样式 */
+
         #ios-alert {
             position: fixed;
             top: 0;
@@ -409,7 +520,6 @@
             box-shadow: 0 6px 20px rgba(26, 117, 255, 0.6);
         }
         
-        /* 页脚 */
         .footer {
             text-align: center;
             padding: 20px;
@@ -418,7 +528,6 @@
             margin-top: 40px;
         }
         
-        /* 波浪背景 */
         .wave {
             position: absolute;
             bottom: 0;
@@ -452,21 +561,59 @@
             0% { background-position-x: 0; }
             100% { background-position-x: 1200px; }
         }
+
+        @media (max-width: 768px) {
+            .login-container {
+                margin: 80px auto;
+                padding: 30px 20px;
+            }
+            
+            .song-page {
+                margin: 15px;
+                padding: 20px;
+            }
+            
+            .song-cover {
+                height: 200px;
+            }
+            
+            .song-title {
+                font-size: 24px;
+            }
+            
+            .song-artist {
+                font-size: 18px;
+            }
+            
+            .play-btn {
+                width: 60px;
+                height: 60px;
+                font-size: 20px;
+            }
+            
+            .nav-btn {
+                width: 40px;
+                height: 40px;
+                font-size: 16px;
+            }
+            
+            .menu-btn {
+                padding: 15px;
+                font-size: 18px;
+            }
+        }
     </style>
 </head>
 <body>
-    <!-- 波浪背景 -->
     <div class="wave wave1"></div>
     <div class="wave wave2"></div>
     <div class="wave wave3"></div>
     
-    <!-- 加载提示 -->
     <div id="loading-overlay">
         <div class="spinner"></div>
         <div id="loading-text">加载中，请稍候...</div>
     </div>
     
-    <!-- iOS 提示弹窗 -->
     <div id="ios-alert">
         <div class="alert-content">
             <h3>欢迎使用NFC音乐卡</h3>
@@ -475,62 +622,248 @@
         </div>
     </div>
 
-    <!-- 登录界面 -->
     <div class="login-container">
         <form class="login-form" id="loginForm">
             <h2>用户登录</h2>
+            <div id="loginError" class="error-message"></div>
             <div class="form-group">
                 <input type="text" id="username" placeholder="用户名" required>
             </div>
             <div class="form-group">
                 <input type="password" id="password" placeholder="密码" required>
             </div>
-            <button type="submit">登录</button>
+            <div id="lockoutMessage" class="lockout-message"></div>
+            <button type="submit" id="loginBtn">登录</button>
             <div class="nfc-tip" id="nfcTip">通过NFC卡片访问的用户可直接登录</div>
         </form>
     </div>
 
-    <!-- 音乐库界面 -->
+    <div class="main-menu" id="mainMenu">
+        <h1>音乐播放平台</h1>
+        <div class="menu-options">
+            <button class="menu-btn" id="randomPlay">
+                <span>🎁</span> 随机播放一首歌
+            </button>
+            <button class="menu-btn" id="viewList">
+                <span>📋</span> 查看全部歌曲列表
+            </button>
+        </div>
+    </div>
+
     <div class="music-library" id="musicLibrary">
-        <div class="header">
-            <h1>音乐库</h1>
-            <p>选择您喜欢的音乐开始播放</p>
+        <div class="library-header">
+            <h1>所有歌曲</h1>
+            <button class="back-btn" id="backToMenu">返回主菜单</button>
         </div>
         <div class="music-grid" id="musicGrid"></div>
     </div>
 
+    <div class="song-page" id="songPage">
+        <div class="song-header">
+            <div class="playing-text">正在播放</div>
+            <button class="back-btn" id="backFromSong">返回</button>
+        </div>
+        
+        <div class="song-cover" id="songCover"></div>
+        
+        <div class="song-info">
+            <h2 class="song-title" id="songTitle">歌曲标题</h2>
+            <p class="song-artist" id="songArtist">歌手</p>
+        </div>
+        
+        <div class="song-controls">
+            <div class="time-info" id="timeInfo">0:00 / 0:00</div>
+            
+            <div class="progress-container">
+                <div class="progress-bar" id="progressBar"></div>
+            </div>
+            
+            <div class="play-btn-container">
+                <button class="nav-btn" id="prevBtn">◀</button>
+                <button class="play-btn" id="playBtn">▶</button>
+                <button class="nav-btn" id="nextBtn">▶</button>
+            </div>
+            
+            <div class="volume-control">
+                <span class="volume-icon">🔊</span>
+                <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.1" value="0.7">
+            </div>
+        </div>
+    </div>
+
     <script>
+        // 安全配置
+        const SECURITY_CONFIG = {
+            maxLoginAttempts: 3, // 最大登录尝试次数
+            sessionTimeout: 30 * 60 * 1000, // 会话超时时间 (30分钟)
+            lockoutLevels: [2, 5, 10, 30, 60], // 锁定时间级别（分钟）
+            adminUsername: "admin", // 管理员用户名
+            adminPassword: "123" // 管理员密码
+        };
+
+        // 安全状态
+        let loginAttempts = 0;
+        let sessionTimer = null;
+        let isLoggedIn = false;
+        let isNfcUser = false;
+        let lockoutTimer = null;
+        let lockoutEndTime = 0;
+        let lockoutLevel = 0;
+
         // 检测NFC访问
         function detectNfcAccess() {
-            // 如果是iOS设备，显示提示弹窗
+            isNfcUser = true;
             if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
                 document.getElementById('ios-alert').style.display = 'flex';
                 
-                // 点击弹窗按钮
                 document.querySelector('.alert-btn').addEventListener('click', function() {
                     document.getElementById('ios-alert').style.display = 'none';
                     document.getElementById('nfcTip').style.display = 'block';
-                    // 自动提交表单
                     setTimeout(() => {
-                        document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+                        nfcLogin();
                     }, 500);
                 });
             } else {
                 document.getElementById('nfcTip').style.display = 'block';
-                // 非iOS设备，自动提交表单
                 setTimeout(() => {
-                    document.getElementById('loginForm').dispatchEvent(new Event('submit'));
+                    nfcLogin();
                 }, 1000);
             }
-            
-            // 自动填写用户名
-            document.getElementById('username').value = 'NFC访客';
-            document.getElementById('password').value = 'nfc123';
         }
         
+        // NFC用户登录
+        function nfcLogin() {
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('loading-overlay').style.opacity = '1';
+            document.getElementById('loading-text').textContent = 'NFC登录中...';
+            
+            setTimeout(function() {
+                document.querySelector('.login-container').style.display = 'none';
+                document.getElementById('mainMenu').style.display = 'block';
+                
+                // 启动会话计时器
+                startSessionTimer();
+                
+                document.getElementById('loading-overlay').style.opacity = '0';
+                setTimeout(function() {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                }, 500);
+            }, 1000);
+        }
+        
+        // 启动会话计时器
+        function startSessionTimer() {
+            clearTimeout(sessionTimer);
+            sessionTimer = setTimeout(logout, SECURITY_CONFIG.sessionTimeout);
+            isLoggedIn = true;
+        }
+        
+        // 重置会话计时器
+        function resetSessionTimer() {
+            if (isLoggedIn) {
+                clearTimeout(sessionTimer);
+                sessionTimer = setTimeout(logout, SECURITY_CONFIG.sessionTimeout);
+            }
+        }
+        
+        // 登出
+        function logout() {
+            isLoggedIn = false;
+            clearTimeout(sessionTimer);
+            
+            // 停止音乐播放
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio = null;
+            }
+            
+            // 隐藏所有内容，显示登录界面
+            document.querySelector('.login-container').style.display = 'block';
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('musicLibrary').style.display = 'none';
+            document.getElementById('songPage').style.display = 'none';
+            
+            // 重置登录表单
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            document.getElementById('loginError').style.display = 'none';
+            document.getElementById('loginError').textContent = '';
+            
+            // 重置安全状态
+            loginAttempts = 0;
+        }
+        
+        // 锁定账户
+        function lockAccount() {
+            // 确定锁定时间（分钟）
+            const lockoutMinutes = lockoutLevel < SECURITY_CONFIG.lockoutLevels.length 
+                ? SECURITY_CONFIG.lockoutLevels[lockoutLevel] 
+                : SECURITY_CONFIG.lockoutLevels[SECURITY_CONFIG.lockoutLevels.length - 1];
+            
+            // 设置锁定结束时间
+            lockoutEndTime = Date.now() + lockoutMinutes * 60 * 1000;
+            
+            // 显示锁定提示
+            document.getElementById('lockoutMessage').style.display = 'block';
+            updateLockoutMessage();
+            
+            // 禁用登录按钮和输入框
+            document.getElementById('loginBtn').disabled = true;
+            document.getElementById('username').disabled = true;
+            document.getElementById('password').disabled = true;
+            
+            // 开始倒计时
+            startLockoutCountdown();
+            
+            // 增加锁定等级（最大不超过锁定时间数组长度）
+            lockoutLevel = Math.min(lockoutLevel + 1, SECURITY_CONFIG.lockoutLevels.length);
+        }
+        
+        // 开始锁定倒计时
+        function startLockoutCountdown() {
+            clearInterval(lockoutTimer);
+            
+            lockoutTimer = setInterval(() => {
+                const now = Date.now();
+                const remaining = Math.max(0, lockoutEndTime - now);
+                
+                if (remaining <= 0) {
+                    unlockAccount();
+                    return;
+                }
+                
+                // 更新锁定提示信息
+                updateLockoutMessage();
+            }, 1000);
+        }
+        
+        // 更新锁定提示信息
+        function updateLockoutMessage() {
+            const remaining = Math.max(0, lockoutEndTime - Date.now());
+            const minutes = Math.ceil(remaining / 60000);
+            document.getElementById('lockoutMessage').textContent = 
+                `已经连续输入错误多次，${minutes}分钟后可以重新输入`;
+        }
+        
+        // 解锁账户
+        function unlockAccount() {
+            clearInterval(lockoutTimer);
+            lockoutTimer = null;
+            
+            // 隐藏锁定消息
+            document.getElementById('lockoutMessage').style.display = 'none';
+            
+            // 启用输入框和按钮
+            document.getElementById('loginBtn').disabled = false;
+            document.getElementById('username').disabled = false;
+            document.getElementById('password').disabled = false;
+            
+            // 重置登录尝试次数
+            loginAttempts = 0;
+        }
+
         // 页面加载完成后执行
         window.addEventListener('DOMContentLoaded', function() {
-            // 隐藏加载提示
             setTimeout(function() {
                 document.getElementById('loading-overlay').style.opacity = '0';
                 setTimeout(function() {
@@ -538,41 +871,120 @@
                 }, 500);
             }, 800);
             
-            // 检查URL中是否有nfc参数
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('nfc')) {
                 detectNfcAccess();
             }
+            
+            // 全局绑定播放控制事件
+            document.getElementById('playBtn').addEventListener('click', togglePlay);
+            document.getElementById('prevBtn').addEventListener('click', playPrevSong);
+            document.getElementById('nextBtn').addEventListener('click', playNextSong);
+            
+            // 音量控制事件
+            document.getElementById('volumeSlider').addEventListener('input', function() {
+                if (currentAudio) {
+                    currentAudio.volume = this.value;
+                }
+            });
+            
+            // 进度条事件
+            const progressContainer = document.querySelector('.progress-container');
+            progressContainer.addEventListener('mousedown', function(e) {
+                isDragging = true;
+                updateProgress(e);
+            });
+            
+            document.addEventListener('mousemove', function(e) {
+                if (isDragging) {
+                    updateProgress(e);
+                }
+            });
+            
+            document.addEventListener('mouseup', function() {
+                isDragging = false;
+            });
+            
+            progressContainer.addEventListener('click', function(e) {
+                updateProgress(e);
+            });
+            
+            // 键盘事件
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'ArrowLeft') {
+                    playPrevSong();
+                } else if (e.key === 'ArrowRight') {
+                    playNextSong();
+                } else if (e.key === ' ') {
+                    togglePlay();
+                    e.preventDefault();
+                }
+            });
+            
+            // 用户活动检测 - 重置会话计时器
+            document.addEventListener('mousemove', resetSessionTimer);
+            document.addEventListener('keydown', resetSessionTimer);
+            document.addEventListener('click', resetSessionTimer);
         });
 
         // 登录处理
         document.getElementById('loginForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
+            
+            // 检查是否在锁定状态
+            if (lockoutEndTime > Date.now()) {
+                return;
+            }
+            
+            const username = sanitizeInput(document.getElementById('username').value);
+            const password = sanitizeInput(document.getElementById('password').value);
+            const errorElement = document.getElementById('loginError');
 
-            // 简单验证
-            if(username && password) {
-                // 显示加载提示
+            // 验证登录信息
+            if(username === SECURITY_CONFIG.adminUsername && password === SECURITY_CONFIG.adminPassword) {
+                // 登录成功
+                errorElement.style.display = 'none';
+                loginAttempts = 0;
+                lockoutLevel = 0; // 重置锁定级别
+                
                 document.getElementById('loading-overlay').style.display = 'flex';
                 document.getElementById('loading-overlay').style.opacity = '1';
                 document.getElementById('loading-text').textContent = '登录中，请稍候...';
                 
                 setTimeout(function() {
                     document.querySelector('.login-container').style.display = 'none';
-                    document.getElementById('musicLibrary').style.display = 'block';
-                    loadMusicLibrary();
+                    document.getElementById('mainMenu').style.display = 'block';
                     
-                    // 隐藏加载提示
+                    // 启动会话计时器
+                    startSessionTimer();
+                    
                     document.getElementById('loading-overlay').style.opacity = '0';
                     setTimeout(function() {
                         document.getElementById('loading-overlay').style.display = 'none';
                     }, 500);
                 }, 1000);
+            } else {
+                // 登录失败
+                loginAttempts++;
+                
+                errorElement.style.display = 'block';
+                if (loginAttempts < SECURITY_CONFIG.maxLoginAttempts) {
+                    const remainingAttempts = SECURITY_CONFIG.maxLoginAttempts - loginAttempts;
+                    errorElement.textContent = `用户名或密码错误，您还有 ${remainingAttempts} 次尝试机会`;
+                } else {
+                    errorElement.textContent = '登录尝试次数过多，账户已锁定';
+                    // 锁定账户
+                    lockAccount();
+                }
             }
         });
 
-        // 音乐数据 - 添加封面图片路径
+        // 输入净化函数（防止XSS攻击）
+        function sanitizeInput(input) {
+            return input.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+        }
+
+        // 音乐数据
         const musicLibrary = [
             { title: '你被写在我的歌里', artist: '鹅鹅鹅', file: 'audio/你被写在我的歌里.mp3', cover: 'images/1.jpg' },
             { title: '枫', artist: '鹅鹅鹅', file: 'audio/枫.mp3', cover: 'images/2.jpg' },
@@ -591,25 +1003,51 @@
 
         // 当前播放状态
         let currentAudio = null;
-        let currentCard = null;
+        let currentSongIndex = -1;
+        let isPlaying = false;
+        let currentMode = '';
+        let isDragging = false;
+
+        // 按钮事件处理
+        document.getElementById('randomPlay').addEventListener('click', function() {
+            playRandomSong();
+        });
+        
+        document.getElementById('viewList').addEventListener('click', function() {
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('musicLibrary').style.display = 'block';
+            loadMusicLibrary();
+        });
+        
+        document.getElementById('backToMenu').addEventListener('click', function() {
+            document.getElementById('musicLibrary').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+        });
+        
+        document.getElementById('backFromSong').addEventListener('click', function() {
+            if (currentAudio) {
+                currentAudio.pause();
+                isPlaying = false;
+                document.getElementById('playBtn').textContent = '▶';
+            }
+            document.getElementById('songPage').style.display = 'none';
+            
+            if (currentMode === 'list') {
+                document.getElementById('musicLibrary').style.display = 'block';
+            } else {
+                document.getElementById('mainMenu').style.display = 'block';
+            }
+        });
 
         // 加载音乐库
         function loadMusicLibrary() {
             const grid = document.getElementById('musicGrid');
             grid.innerHTML = '';
             
-            // 显示加载提示
-            document.getElementById('loading-overlay').style.display = 'flex';
-            document.getElementById('loading-overlay').style.opacity = '1';
-            document.getElementById('loading-text').textContent = '正在加载音乐资源...';
-
-            let loadedCount = 0;
-            
             musicLibrary.forEach((music, index) => {
                 const card = document.createElement('div');
                 card.className = 'music-card';
                 
-                // 添加背景图片层
                 const bgDiv = document.createElement('div');
                 bgDiv.className = 'card-bg';
                 bgDiv.style.backgroundImage = `url('${music.cover}')`;
@@ -617,173 +1055,178 @@
                 
                 card.innerHTML += `
                     <div class="music-info">
-                        <h3>${music.title}</h3>
-                        <p>${music.artist}</p>
-                    </div>
-                    <div class="progress-container">
-                        <div class="progress-bar" id="progress-${index}"></div>
-                    </div>
-                    <div class="controls">
-                        <button class="play-btn" id="play-${index}">▶</button>
-                        <span class="time-info" id="time-${index}">0:00 / 0:00</span>
-                    </div>
-                    <div class="volume-control">
-                        <span class="volume-icon">🔊</span>
-                        <input type="range" class="volume-slider" id="volume-${index}" min="0" max="1" step="0.1" value="0.7">
+                        <h3>${sanitizeInput(music.title)}</h3>
+                        <p>${sanitizeInput(music.artist)}</p>
                     </div>
                 `;
                 
-                // 播放/暂停按钮事件
-                const playBtn = card.querySelector(`#play-${index}`);
-                const progressBar = card.querySelector(`#progress-${index}`);
-                const progressContainer = card.querySelector('.progress-container');
-                const timeInfo = card.querySelector(`#time-${index}`);
-                const volumeSlider = card.querySelector(`#volume-${index}`);
-                
-                // 使用相对路径（适用于GitHub Pages）
-                const audioPath = music.file;
-                let audio = new Audio(audioPath);
-                audio.preload = 'metadata'; // 预加载元数据
-                audio.volume = 0.7; // 默认音量
-                
-                // 音频加载事件
-                audio.addEventListener('loadedmetadata', function() {
-                    loadedCount++;
-                    
-                    // 更新时长显示
-                    const durationMinutes = Math.floor(audio.duration / 60);
-                    const durationSeconds = Math.floor(audio.duration % 60).toString().padStart(2, '0');
-                    timeInfo.textContent = `0:00 / ${durationMinutes}:${durationSeconds}`;
-                    
-                    // 所有音频加载完成后隐藏加载提示
-                    if (loadedCount === musicLibrary.length) {
-                        document.getElementById('loading-overlay').style.opacity = '0';
-                        setTimeout(function() {
-                            document.getElementById('loading-overlay').style.display = 'none';
-                        }, 500);
-                    }
-                });
-                
-                // 点击播放按钮
-                playBtn.addEventListener('click', function(e) {
-                    e.stopPropagation();
-                    togglePlay(audio, index, card);
-                });
-                
-                // 解决进度条拖动问题：添加拖动支持
-                let isDragging = false;
-                
-                progressContainer.addEventListener('mousedown', function(e) {
-                    isDragging = true;
-                    updateProgress(e, audio, progressContainer, progressBar);
-                });
-                
-                document.addEventListener('mousemove', function(e) {
-                    if (isDragging) {
-                        updateProgress(e, audio, progressContainer, progressBar);
-                    }
-                });
-                
-                document.addEventListener('mouseup', function() {
-                    isDragging = false;
-                });
-                
-                // 点击进度条
-                progressContainer.addEventListener('click', function(e) {
-                    updateProgress(e, audio, progressContainer, progressBar);
-                });
-                
-                // 音量控制
-                volumeSlider.addEventListener('input', function() {
-                    audio.volume = this.value;
-                });
-                
-                // 更新进度条和时间
-                audio.addEventListener('timeupdate', function() {
-                    if (!isDragging && !isNaN(audio.duration)) {
-                        const progressPercent = (audio.currentTime / audio.duration) * 100;
-                        progressBar.style.width = `${progressPercent}%`;
-                        
-                        // 更新时间显示
-                        const currentMinutes = Math.floor(audio.currentTime / 60);
-                        const currentSeconds = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
-                        const durationMinutes = Math.floor(audio.duration / 60);
-                        const durationSeconds = Math.floor(audio.duration % 60).toString().padStart(2, '0');
-                        
-                        timeInfo.textContent = `${currentMinutes}:${currentSeconds} / ${durationMinutes}:${durationSeconds}`;
-                    }
-                });
-                
-                // 歌曲结束时重置
-                audio.addEventListener('ended', function() {
-                    playBtn.textContent = '▶';
-                    progressBar.style.width = '0%';
-                    timeInfo.textContent = `0:00 / ${Math.floor(audio.duration / 60)}:${Math.floor(audio.duration % 60).toString().padStart(2, '0')}`;
+                card.addEventListener('click', function() {
+                    playSong(index, 'list');
                 });
                 
                 grid.appendChild(card);
             });
+        }
+
+        // 播放随机歌曲
+        function playRandomSong() {
+            const randomIndex = Math.floor(Math.random() * musicLibrary.length);
+            playSong(randomIndex, 'random');
+        }
+
+        // 播放指定歌曲
+        function playSong(index, mode) {
+            currentMode = mode;
+            currentSongIndex = index;
+            const song = musicLibrary[index];
             
-            // 如果加载超时
-            setTimeout(function() {
-                if (loadedCount < musicLibrary.length) {
-                    document.getElementById('loading-overlay').style.opacity = '0';
-                    setTimeout(function() {
-                        document.getElementById('loading-overlay').style.display = 'none';
-                    }, 500);
+            // 更新UI
+            document.getElementById('mainMenu').style.display = 'none';
+            document.getElementById('musicLibrary').style.display = 'none';
+            document.getElementById('songPage').style.display = 'block';
+            
+            document.getElementById('songTitle').textContent = song.title;
+            document.getElementById('songArtist').textContent = song.artist;
+            document.getElementById('songCover').style.backgroundImage = `url('${song.cover}')`;
+            
+            // 停止并清除当前音频
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                
+                // 清除所有事件监听器
+                currentAudio.removeEventListener('loadedmetadata', null);
+                currentAudio.removeEventListener('ended', null);
+                currentAudio.removeEventListener('timeupdate', null);
+                
+                currentAudio = null;
+            }
+            
+            // 重置进度条和时间
+            document.getElementById('progressBar').style.width = '0%';
+            document.getElementById('timeInfo').textContent = '0:00 / 0:00';
+            
+            // 创建新的音频对象
+            currentAudio = new Audio(song.file);
+            currentAudio.playbackRate = 1.0;
+            currentAudio.volume = document.getElementById('volumeSlider').value;
+            
+            // 更新播放按钮状态
+            isPlaying = false;
+            document.getElementById('playBtn').textContent = '▶';
+            
+            // 显示加载提示
+            document.getElementById('loading-overlay').style.display = 'flex';
+            document.getElementById('loading-overlay').style.opacity = '1';
+            document.getElementById('loading-text').textContent = '加载歌曲中...';
+            
+            // 音频加载事件
+            currentAudio.addEventListener('loadedmetadata', function() {
+                const durationMinutes = Math.floor(currentAudio.duration / 60);
+                const durationSeconds = Math.floor(currentAudio.duration % 60).toString().padStart(2, '0');
+                document.getElementById('timeInfo').textContent = `0:00 / ${durationMinutes}:${durationSeconds}`;
+                
+                document.getElementById('loading-overlay').style.opacity = '0';
+                setTimeout(function() {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                }, 500);
+            });
+            
+            // 歌曲结束时播放下一首
+            currentAudio.addEventListener('ended', function() {
+                playNextSong();
+            });
+            
+            // 时间更新事件
+            currentAudio.addEventListener('timeupdate', function() {
+                if (!isDragging && !isNaN(currentAudio.duration)) {
+                    const progressPercent = (currentAudio.currentTime / currentAudio.duration) * 100;
+                    document.getElementById('progressBar').style.width = `${progressPercent}%`;
+                    
+                    const currentMinutes = Math.floor(currentAudio.currentTime / 60);
+                    const currentSeconds = Math.floor(currentAudio.currentTime % 60).toString().padStart(2, '0');
+                    const durationMinutes = Math.floor(currentAudio.duration / 60);
+                    const durationSeconds = Math.floor(currentAudio.duration % 60).toString().padStart(2, '0');
+                    
+                    document.getElementById('timeInfo').textContent = 
+                        `${currentMinutes}:${currentSeconds} / ${durationMinutes}:${durationSeconds}`;
                 }
-            }, 10000); // 10秒超时
+            });
+            
+            // 错误处理
+            currentAudio.addEventListener('error', function() {
+                console.error('音频加载错误:', currentAudio.error);
+                document.getElementById('loading-overlay').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('loading-overlay').style.display = 'none';
+                    document.getElementById('songPage').style.display = 'none';
+                    if (currentMode === 'list') {
+                        document.getElementById('musicLibrary').style.display = 'block';
+                    } else {
+                        document.getElementById('mainMenu').style.display = 'block';
+                    }
+                }, 500);
+            });
         }
 
         // 更新进度条
-        function updateProgress(e, audio, container, progressBar) {
+        function updateProgress(e) {
+            if (!currentAudio) return;
+            
+            const container = document.querySelector('.progress-container');
             const clickX = e.clientX - container.getBoundingClientRect().left;
             const containerWidth = container.clientWidth;
             const percentage = Math.min(Math.max(clickX / containerWidth, 0), 1);
-            audio.currentTime = percentage * audio.duration;
-            progressBar.style.width = `${percentage * 100}%`;
             
-            // 更新时间显示
-            const currentMinutes = Math.floor(audio.currentTime / 60);
-            const currentSeconds = Math.floor(audio.currentTime % 60).toString().padStart(2, '0');
-            const durationMinutes = Math.floor(audio.duration / 60);
-            const durationSeconds = Math.floor(audio.duration % 60).toString().padStart(2, '0');
+            currentAudio.currentTime = percentage * currentAudio.duration;
+            const progressPercent = percentage * 100;
+            document.getElementById('progressBar').style.width = `${progressPercent}%`;
             
-            container.parentElement.querySelector('.time-info').textContent = 
+            const currentMinutes = Math.floor(currentAudio.currentTime / 60);
+            const currentSeconds = Math.floor(currentAudio.currentTime % 60).toString().padStart(2, '0');
+            const durationMinutes = Math.floor(currentAudio.duration / 60);
+            const durationSeconds = Math.floor(currentAudio.duration % 60).toString().padStart(2, '0');
+            
+            document.getElementById('timeInfo').textContent = 
                 `${currentMinutes}:${currentSeconds} / ${durationMinutes}:${durationSeconds}`;
         }
 
         // 播放/暂停切换
-        function togglePlay(audio, index, card) {
-            const playBtn = card.querySelector(`#play-${index}`);
+        function togglePlay() {
+            if (!currentAudio) return;
             
-            // 如果点击的是当前正在播放的歌曲
-            if (currentAudio === audio) {
-                if (audio.paused) {
-                    audio.play().catch(e => console.log('播放失败:', e));
-                    playBtn.textContent = '❚❚';
-                } else {
-                    audio.pause();
-                    playBtn.textContent = '▶';
-                }
-            } 
-            // 如果点击的是其他歌曲
-            else {
-                // 停止当前播放的歌曲
-                if (currentAudio) {
-                    currentAudio.pause();
-                    if (currentCard) {
-                        const prevPlayBtn = currentCard.querySelector('.play-btn');
-                        prevPlayBtn.textContent = '▶';
-                    }
-                }
-                
-                // 播放新歌曲
-                currentAudio = audio;
-                currentCard = card;
-                audio.currentTime = 0;
-                audio.play().catch(e => console.log('播放失败:', e));
-                playBtn.textContent = '❚❚';
+            if (currentAudio.paused) {
+                currentAudio.play().catch(e => {
+                    console.error('播放失败:', e);
+                });
+                isPlaying = true;
+                document.getElementById('playBtn').textContent = '❚❚';
+            } else {
+                currentAudio.pause();
+                isPlaying = false;
+                document.getElementById('playBtn').textContent = '▶';
+            }
+        }
+
+        // 播放上一首
+        function playPrevSong() {
+            if (currentMode === 'random') {
+                playRandomSong();
+            } else {
+                let newIndex = currentSongIndex - 1;
+                if (newIndex < 0) newIndex = musicLibrary.length - 1;
+                playSong(newIndex, 'list');
+            }
+        }
+
+        // 播放下一首
+        function playNextSong() {
+            if (currentMode === 'random') {
+                playRandomSong();
+            } else {
+                let newIndex = currentSongIndex + 1;
+                if (newIndex >= musicLibrary.length) newIndex = 0;
+                playSong(newIndex, 'list');
             }
         }
     </script>
