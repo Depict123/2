@@ -143,7 +143,7 @@
             transition: all 0.3s;
             box-shadow: 0 4px 15px rgba(26, 117, 255, 0.4);
             margin-top: 10px;
-            width: 100%; /* 登录按钮扩大到与登录框一样大小 */
+            width: 100%;
         }
         
         button:hover {
@@ -223,6 +223,7 @@
             justify-content: space-between;
             align-items: center;
             margin-bottom: 25px;
+            flex-wrap: wrap;
         }
         
         .library-header h1 {
@@ -236,11 +237,18 @@
         }
 
         .back-btn {
-            margin-left: 500px;
             padding: 10px 20px;
             font-size: 16px;
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        
+        .back-btn:hover {
+            background: rgba(77, 184, 255, 0.5);
         }
 
         .music-grid {
@@ -562,6 +570,27 @@
             100% { background-position-x: 1200px; }
         }
 
+        /* 新增移动端返回按钮 */
+        .mobile-back-btn {
+            display: none;
+            position: fixed;
+            top: 15px;
+            left: 15px;
+            z-index: 100;
+            padding: 10px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            color: white;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        
+        .mobile-back-btn:hover {
+            background: rgba(77, 184, 255, 0.5);
+        }
+
         @media (max-width: 768px) {
             .login-container {
                 margin: 80px auto;
@@ -601,6 +630,20 @@
                 padding: 15px;
                 font-size: 18px;
             }
+            
+            .library-header {
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .mobile-back-btn {
+                display: block;
+            }
+            
+            .back-btn {
+                display: none;
+            }
         }
     </style>
 </head>
@@ -613,6 +656,9 @@
         <div class="spinner"></div>
         <div id="loading-text">加载中，请稍候...</div>
     </div>
+    
+    <!-- 新增移动端返回按钮 -->
+    <button class="mobile-back-btn" id="mobileBackBtn">返回</button>
     
     <div id="ios-alert">
         <div class="alert-content">
@@ -864,12 +910,13 @@
 
         // 页面加载完成后执行
         window.addEventListener('DOMContentLoaded', function() {
+            // 优化：缩短加载动画时间
             setTimeout(function() {
                 document.getElementById('loading-overlay').style.opacity = '0';
                 setTimeout(function() {
                     document.getElementById('loading-overlay').style.display = 'none';
                 }, 500);
-            }, 800);
+            }, 500); // 从800ms减少到500ms
             
             const urlParams = new URLSearchParams(window.location.search);
             if (urlParams.has('nfc')) {
@@ -925,6 +972,19 @@
             document.addEventListener('mousemove', resetSessionTimer);
             document.addEventListener('keydown', resetSessionTimer);
             document.addEventListener('click', resetSessionTimer);
+            
+            // 新增：移动端返回按钮事件
+            document.getElementById('mobileBackBtn').addEventListener('click', function() {
+                if (document.getElementById('musicLibrary').style.display === 'block') {
+                    document.getElementById('musicLibrary').style.display = 'none';
+                    document.getElementById('mainMenu').style.display = 'block';
+                } else if (document.getElementById('songPage').style.display === 'block') {
+                    document.getElementById('songPage').style.display = 'none';
+                    document.getElementById('musicLibrary').style.display = 'block';
+                } else if (document.getElementById('mainMenu').style.display === 'block') {
+                    logout();
+                }
+            });
         });
 
         // 登录处理
@@ -1050,7 +1110,10 @@
                 
                 const bgDiv = document.createElement('div');
                 bgDiv.className = 'card-bg';
-                bgDiv.style.backgroundImage = `url('${music.cover}')`;
+                // 优化：延迟加载图片
+                setTimeout(() => {
+                    bgDiv.style.backgroundImage = `url('${music.cover}')`;
+                }, 100);
                 card.appendChild(bgDiv);
                 
                 card.innerHTML += `
@@ -1087,7 +1150,10 @@
             
             document.getElementById('songTitle').textContent = song.title;
             document.getElementById('songArtist').textContent = song.artist;
-            document.getElementById('songCover').style.backgroundImage = `url('${song.cover}')`;
+            // 优化：延迟加载封面
+            setTimeout(() => {
+                document.getElementById('songCover').style.backgroundImage = `url('${song.cover}')`;
+            }, 100);
             
             // 停止并清除当前音频
             if (currentAudio) {
@@ -1107,7 +1173,11 @@
             document.getElementById('timeInfo').textContent = '0:00 / 0:00';
             
             // 创建新的音频对象
-            currentAudio = new Audio(song.file);
+            currentAudio = new Audio();
+            // 优化：延迟加载音频
+            setTimeout(() => {
+                currentAudio.src = song.file;
+            }, 200);
             currentAudio.playbackRate = 1.0;
             currentAudio.volume = document.getElementById('volumeSlider').value;
             
