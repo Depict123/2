@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>欢迎收听你的月亮我的心</title>
     <style>
+        /* 样式保持不变 */
         * { 
             margin: 0;
             padding: 0;
@@ -230,14 +231,7 @@
             text-shadow: 0 2px 4px rgba(0,0,0,0.3);
         }
         
-        .playing-text{
-            writing-mode: horizontal-tb;
-            white-space: nowrap;
-        }
-
         .back-btn {
-            margin-left: auto; /* 右对齐 */
-            margin-right: 20px; /* 右侧边距 */
             padding: 10px 20px;
             font-size: 16px;
             background: rgba(255, 255, 255, 0.2);
@@ -661,7 +655,7 @@
 
     <div class="song-page" id="songPage">
         <div class="song-header">
-            <div class="playing-text">正在播放</div>
+            <h1>正在播放</h1>
             <button class="back-btn" id="backFromSong">返回</button>
         </div>
         
@@ -773,10 +767,7 @@
             clearTimeout(sessionTimer);
             
             // 停止音乐播放
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio = null;
-            }
+            stopCurrentAudio();
             
             // 隐藏所有内容，显示登录界面
             document.querySelector('.login-container').style.display = 'block';
@@ -792,6 +783,23 @@
             
             // 重置安全状态
             loginAttempts = 0;
+        }
+        
+        // 停止当前音频并清理资源
+        function stopCurrentAudio() {
+            if (currentAudio) {
+                currentAudio.pause();
+                currentAudio.currentTime = 0;
+                
+                // 清除所有事件监听器
+                currentAudio.removeEventListener('loadedmetadata', null);
+                currentAudio.removeEventListener('ended', null);
+                currentAudio.removeEventListener('timeupdate', null);
+                
+                currentAudio = null;
+            }
+            isPlaying = false;
+            document.getElementById('playBtn').textContent = '▶';
         }
         
         // 锁定账户
@@ -926,6 +934,26 @@
             document.addEventListener('mousemove', resetSessionTimer);
             document.addEventListener('keydown', resetSessionTimer);
             document.addEventListener('click', resetSessionTimer);
+            
+            // 返回按钮事件处理
+            document.getElementById('backToMenu').addEventListener('click', function() {
+                document.getElementById('musicLibrary').style.display = 'none';
+                document.getElementById('mainMenu').style.display = 'block';
+                // 停止当前播放
+                stopCurrentAudio();
+            });
+            
+            document.getElementById('backFromSong').addEventListener('click', function() {
+                // 停止当前播放
+                stopCurrentAudio();
+                document.getElementById('songPage').style.display = 'none';
+                
+                if (currentMode === 'list') {
+                    document.getElementById('musicLibrary').style.display = 'block';
+                } else {
+                    document.getElementById('mainMenu').style.display = 'block';
+                }
+            });
         });
 
         // 登录处理
@@ -1019,26 +1047,6 @@
             document.getElementById('musicLibrary').style.display = 'block';
             loadMusicLibrary();
         });
-        
-        document.getElementById('backToMenu').addEventListener('click', function() {
-            document.getElementById('musicLibrary').style.display = 'none';
-            document.getElementById('mainMenu').style.display = 'block';
-        });
-        
-        document.getElementById('backFromSong').addEventListener('click', function() {
-            if (currentAudio) {
-                currentAudio.pause();
-                isPlaying = false;
-                document.getElementById('playBtn').textContent = '▶';
-            }
-            document.getElementById('songPage').style.display = 'none';
-            
-            if (currentMode === 'list') {
-                document.getElementById('musicLibrary').style.display = 'block';
-            } else {
-                document.getElementById('mainMenu').style.display = 'block';
-            }
-        });
 
         // 加载音乐库
         function loadMusicLibrary() {
@@ -1077,6 +1085,9 @@
 
         // 播放指定歌曲
         function playSong(index, mode) {
+            // 停止当前播放的歌曲（如果有）
+            stopCurrentAudio();
+            
             currentMode = mode;
             currentSongIndex = index;
             const song = musicLibrary[index];
@@ -1089,19 +1100,6 @@
             document.getElementById('songTitle').textContent = song.title;
             document.getElementById('songArtist').textContent = song.artist;
             document.getElementById('songCover').style.backgroundImage = `url('${song.cover}')`;
-            
-            // 停止并清除当前音频
-            if (currentAudio) {
-                currentAudio.pause();
-                currentAudio.currentTime = 0;
-                
-                // 清除所有事件监听器
-                currentAudio.removeEventListener('loadedmetadata', null);
-                currentAudio.removeEventListener('ended', null);
-                currentAudio.removeEventListener('timeupdate', null);
-                
-                currentAudio = null;
-            }
             
             // 重置进度条和时间
             document.getElementById('progressBar').style.width = '0%';
