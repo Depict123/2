@@ -726,16 +726,20 @@
             }
         }
         
-        // NFC用户登录
+        // NFC用户登录 - 修复了登录后跳转问题
         function nfcLogin() {
             document.getElementById('loading-overlay').style.display = 'flex';
             document.getElementById('loading-overlay').style.opacity = '1';
             document.getElementById('loading-text').textContent = 'NFC登录中...';
             
+            // 立即隐藏登录界面并显示主菜单
+            document.querySelector('.login-container').style.display = 'none';
+            document.getElementById('mainMenu').style.display = 'block';
+            
+            // 设置登录状态
+            isLoggedIn = true;
+            
             setTimeout(function() {
-                document.querySelector('.login-container').style.display = 'none';
-                document.getElementById('mainMenu').style.display = 'block';
-                
                 // 启动会话计时器
                 startSessionTimer();
                 
